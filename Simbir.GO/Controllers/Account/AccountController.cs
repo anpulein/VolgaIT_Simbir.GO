@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Simbir.GO.Data;
@@ -11,13 +12,20 @@ namespace Simbir.GO.Controllers.Account;
 [Route("api/[controller]/[action]")]
 public class AccountController : ControllerBase
 {
-    private static Models.Account _account;
     private readonly ITokenService _tokenService;
     private readonly IBCryptNet _bCryptNet;
     private readonly ApplicationContext _context;
     private readonly IConfiguration _configuration;
     private readonly ILogger<Models.Account> _logger;
 
+    /// <summary>
+    /// Account Controller
+    /// </summary>
+    /// <param name="tokenService"></param>
+    /// <param name="bCryptNet"></param>
+    /// <param name="context"></param>
+    /// <param name="configuration"></param>
+    /// <param name="logger"></param>
     public AccountController(ITokenService tokenService, IBCryptNet bCryptNet, ApplicationContext context, IConfiguration configuration, ILogger<Models.Account> logger)
     {
         _tokenService = tokenService;
@@ -27,31 +35,50 @@ public class AccountController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    /// Получение данных о текущем аккаунте
+    /// </summary>
+    /// <returns></returns>
     [Authorize, HttpGet]
-    public ActionResult<Models.Account> Me() => _context.Accounts.FirstOrDefault(f => f.Username == _account.Username);
+    public ActionResult<Models.Account> Me()
+    {
+        var username = User.Identity?.Name; 
+        
+        var account = _context.Accounts.FirstOrDefault(f => f.Username == username);
+        if (account is null) return BadRequest($"User not found or not authenticated.");
+        
+        return account;
+    }
 
+    /// <summary>
+    /// Получение нового jwt токена пользователя
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
-    public ActionResult<AccountResponse> SignIn(AccountRequest request)
+    [ActionName("SignIn")]
+    public ActionResult<AccountResponse> UserSignIn([FromQuery]AccountModel model)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var account = _context.Accounts.FirstOrDefault(f => f.Username == request.Username);
-
+        var account = _context.Accounts.FirstOrDefault(f => f.Username == model.Username);
         if (account is null) return Unauthorized("User does not exist");
 
-        if (!_bCryptNet.IsPasswordHash(request.Password, account.Password))
+        if (!_bCryptNet.IsPasswordHash(model.Password, account.Password))
         {
-            return BadRequest("Invalid password");
+            return Unauthorized("Invalid password");
         }
 
         var accessToken = _tokenService.CreateToken(account);
+        var refreshTokenValidityInDays = _configuration.GetSection("Jwt:RefreshTokenValidityInDays").Get<int>();
         account.RefreshToken = _configuration.GenerateRefreshToken();
         account.RefreshTokenExpiryTime =
-            DateTime.UtcNow.AddDays(_configuration.GetSection("Jwt:RefreshTokenValidityInDays").Get<int>());
+            DateTime.UtcNow.AddDays(refreshTokenValidityInDays);
 
         _context.SaveChanges();
 
-        _account = account;
+        var identity = new ClaimsIdentity(account.CreateClaims(), "jwt");
+        HttpContext.User = new ClaimsPrincipal(identity);
         
         return Ok(new AccountResponse
         {
@@ -62,59 +89,80 @@ public class AccountController : ControllerBase
         });
     }
     
+    /// <summary>
+    /// Регистрация нового аккаунта
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [HttpPost]
-    public ActionResult<AccountRequest> SignUp(AccountRequest request)
+    [ActionName("SignUp")]
+    public ActionResult<AccountModel> UserSignUp([FromQuery]AccountModel model)
     {
-        if (!ModelState.IsValid) return BadRequest(request);
+        if (!ModelState.IsValid) return BadRequest(model);
 
-        var findUser = _context.Accounts.Any(a => a.Username == request.Username);
-
-        if (findUser) return BadRequest($"User with {request.Username} already exists");
+        var findUser = _context.Accounts.Any(a => a.Username == model.Username);
+        if (findUser) return BadRequest($"User with {model.Username} already exists");
         
-        string passwordHash = _bCryptNet.GetPasswordHash(request.Password);
+        string passwordHash = _bCryptNet.GetPasswordHash(model.Password);
 
         var account = new Models.Account
         {
-            Username = request.Username,
+            Username = model.Username,
             Password = passwordHash
         };
 
         _context.Accounts.Add(account);
         _context.SaveChanges();
 
-        return (new AccountRequest
+        return (new AccountModel
         {
             Username = account.Username,
             Password = account.Password
         });
     }
     
-    
+    /// <summary>
+    /// Выход из аккаунта
+    /// </summary>
+    /// <returns></returns>
     [Authorize, HttpPost]
-    public IActionResult SignOut()
+    [ActionName("SignOut")]
+    public IActionResult UserSignOut()
     {
-        var account = _context.Accounts.FirstOrDefault(f => f.Username == _account.Username);
+        var username = User.Identity?.Name;
+        
+        var account = _context.Accounts.FirstOrDefault(f => f.Username == username);
+        if (account is null) 
+            return BadRequest($"User not found or not authenticated");
+        
         account.RefreshToken = null;
         _context.SaveChanges();
         
-        return Ok($"Username {account.Username} sign out.");
+        return Ok($"Username {account.Username} sign out");
     }
     
+    /// <summary>
+    /// Обновление своего аккаунта
+    /// </summary>
+    /// <param name="model"></param>
+    /// <returns></returns>
     [Authorize, HttpPut]
-    public ActionResult<AccountRequest> Update(AccountRequest request)
+    public ActionResult<AccountModel> Update([FromQuery]AccountModel model)
     {
-        if (!ModelState.IsValid) return BadRequest(request);
+        if (!ModelState.IsValid) return BadRequest(model);
         
-        if (_context.Accounts.Any(a => a.Username == request.Username))
-            return BadRequest($"Such {request.Username} already exists, use another one");
-
-        var account = _context.Accounts.FirstOrDefault(f => f.Username == _account.Username);
-        account.Username = request.Username;
-        account.Password = _bCryptNet.GetPasswordHash(request.Password);
+        var username = User.Identity?.Name;
+        
+        var account = _context.Accounts.FirstOrDefault(f => f.Username == username);
+        if (account is null)
+            return BadRequest($"User {model.Username} not found or not authenticated");
+        
+        account.Username = model.Username;
+        account.Password = _bCryptNet.GetPasswordHash(model.Password);
         
         _context.SaveChanges();
 
-        return (new AccountRequest
+        return (new AccountModel
         {
             Username = account.Username,
             Password = account.Password

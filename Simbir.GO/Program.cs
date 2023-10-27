@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -76,6 +77,11 @@ builder.Services.AddSwaggerGen(option =>
             new string[] {}
         }
     });
+    
+    // Set the comments path for the Swagger JSON and UI.
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    option.IncludeXmlComments(xmlPath);
 });
 
 var app = builder.Build();

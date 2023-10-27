@@ -15,6 +15,12 @@ public class AdminAccountController : ControllerBase
     private readonly ApplicationContext _context;
     private readonly ILogger<Models.Account> _logger;
     
+    /// <summary>
+    /// AdminAccount controller
+    /// </summary>
+    /// <param name="bCryptNet"></param>
+    /// <param name="context"></param>
+    /// <param name="logger"></param>
     public AdminAccountController(IBCryptNet bCryptNet, ApplicationContext context, ILogger<Models.Account> logger)
     {
         _bCryptNet = bCryptNet;
@@ -22,30 +28,60 @@ public class AdminAccountController : ControllerBase
         _logger = logger;
     }
 
-    [HttpGet]
-    public IEnumerable<Models.Account> GetAccounts()
+    /// <summary>
+    /// Получение списка всех аккаунтов
+    /// </summary>
+    /// <param name="start"></param>
+    /// <param name="count"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentOutOfRangeException"></exception>
+    [HttpGet("{start}/{count}")]
+    public IEnumerable<Models.Account> GetAccounts(int start, int count)
     {
+        if (start < 0 || count <= 0)
+        {
+            throw new ArgumentOutOfRangeException("Incorrect start and count parameters");
+        }
+
+        if (start > _context.Accounts.Count()) throw new ArgumentOutOfRangeException("Incorrect start parameter");
         
-        return null;
+        return _context.Accounts
+            .Skip(start)
+            .Take(count)
+            .ToList();
     }
     
+    /// <summary>
+    /// Получение информации об аккаунте по id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpGet("{id}")]
-    public ActionResult<Models.Account> GetAccount(int id)
+    public ActionResult<AdminAccountModel> GetAccount(int id)
     {
         var account = _context.Accounts.FirstOrDefault(f => f.Id == id);
-
         if (account is null) return Unauthorized("User does not exist");
         
-        return account;
+        return new AdminAccountModel
+        {
+            Username = account.Username,
+            Password = account.Password,
+            IsAdmin = account.IsAdmin,
+            Balance = account.Balance
+        };
     }
-
+    
+    /// <summary>
+    /// Создание администратором нового аккаунта
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPost]
-    public ActionResult<Models.Account> Add(Models.Account request)
+    public ActionResult<AdminAccountModel> Add([FromQuery]AdminAccountModel request)
     {
         if (!ModelState.IsValid) return BadRequest(request);
 
         var findUser = _context.Accounts.Any(a => a.Username == request.Username);
-
         if (findUser) return BadRequest($"User with {request.Username} already exists");
 
         string passwordHash = _bCryptNet.GetPasswordHash(request.Password);
@@ -61,17 +97,29 @@ public class AdminAccountController : ControllerBase
         _context.Accounts.Add(account);
         _context.SaveChanges();
         
-        return account;
+        return new AdminAccountModel
+        {
+            Username = account.Username,
+            Password = account.Password,
+            IsAdmin = account.IsAdmin,
+            Balance = account.Balance
+        };
     }
 
+    /// <summary>
+    /// Изменение администратором аккаунта по id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpPut("{id}")]
-    public ActionResult<Models.Account> Update(int id, Models.Account request)
+    public ActionResult<AdminAccountModel> Update(int id, [FromQuery]AdminAccountModel request)
     {
         var account = _context.Accounts.FirstOrDefault(f => f.Id == id);
-        if (account is null) BadRequest($"Such with Id = {id} already exists");
+        if (account is null) BadRequest($"User with Id = {id} not found");
 
         var findUser = _context.Accounts.Any(a => a.Username == request.Username);
-        if (findUser) return BadRequest($"Such {request.Username} already exists, use another one");
+        if (findUser) return BadRequest($"User with {request.Username} already exists, use another one");
 
         account.Username = request.Username;
         account.Password = _bCryptNet.GetPasswordHash(request.Password);
@@ -80,14 +128,25 @@ public class AdminAccountController : ControllerBase
 
         _context.SaveChanges();
         
-        return account;
+        return new AdminAccountModel
+        {
+            Username = account.Username,
+            Password = account.Password,
+            IsAdmin = account.IsAdmin,
+            Balance = account.Balance
+        };
     }
 
+    /// <summary>
+    /// Удаление аккаунта по id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <returns></returns>
     [HttpDelete("{id}")]
     public ActionResult Delete(int id)
     {
         var account = _context.Accounts.FirstOrDefault(f => f.Id == id);
-        if (account is null) return BadRequest($"Such with Id = {id} already exists");
+        if (account is null) return BadRequest($"Such with Id = {id} not found");
 
         _context.Accounts.Remove(account);
         _context.SaveChanges();
