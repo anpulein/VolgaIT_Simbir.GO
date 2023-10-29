@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Simbir.GO.Models;
+using Simbir.GO.Models.Transport;
 
 namespace Simbir.GO.Data;
 
@@ -28,4 +29,9 @@ public sealed class ApplicationContext : DbContext
     /// Account model
     /// </summary>
     public DbSet<Account> Accounts { get; set; } = null!;
+    /// <summary>
+    /// TransportInfo model
+    /// </summary>
+    public DbSet<TransportInfo> Transports { get; set; } = null!;
+    
 }

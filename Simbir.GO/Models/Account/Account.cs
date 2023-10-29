@@ -10,7 +10,7 @@ public class Account
     /// User Id
     /// </summary>
     [Key]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     /// <summary>
     /// User login

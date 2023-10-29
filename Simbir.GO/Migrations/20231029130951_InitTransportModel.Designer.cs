@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Simbir.GO.Data;
@@ -11,9 +12,11 @@ using Simbir.GO.Data;
 namespace Simbir.GO.Migrations
 {
     [DbContext(typeof(ApplicationContext))]
-    partial class ApplicationContextModelSnapshot : ModelSnapshot
+    [Migration("20231029130951_InitTransportModel")]
+    partial class InitTransportModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -24,11 +27,11 @@ namespace Simbir.GO.Migrations
 
             modelBuilder.Entity("Simbir.GO.Models.Account", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<double>("Balance")
                         .HasColumnType("double precision");
@@ -57,21 +60,21 @@ namespace Simbir.GO.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1L,
+                            Id = 1,
                             Balance = 0.0,
                             IsAdmin = true,
-                            Password = "$2a$11$YHIxk10qncL0c4ZdhYiJAeSGnOHGqZALy5UlD9h4erdMmqWfNPBEG",
+                            Password = "$2a$11$H2IlRAl0zEQK6SyfOmhNVeVrO8iQYKp9nuq9cdTsWdYn7cqqwzr6O",
                             Username = "admin"
                         });
                 });
 
             modelBuilder.Entity("Simbir.GO.Models.Transport.TransportInfo", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
+                        .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("CanBeRented")
                         .HasColumnType("boolean");
@@ -103,8 +106,8 @@ namespace Simbir.GO.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<long>("OwnerId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("integer");
 
                     b.Property<int>("TransportType")
                         .HasColumnType("integer");
