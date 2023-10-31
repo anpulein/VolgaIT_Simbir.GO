@@ -13,7 +13,7 @@ public class TransportController : ControllerBase
     private ApplicationContext _context;
 
     /// <summary>
-    /// TransportInfo controller
+    /// Transport controller
     /// </summary>
     /// <param name="context"></param>
     public TransportController(ApplicationContext context)

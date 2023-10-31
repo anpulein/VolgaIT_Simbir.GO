@@ -13,6 +13,10 @@ public class RentController : ControllerBase
 {
     private readonly ApplicationContext _context;
 
+    /// <summary>
+    /// Rent controller
+    /// </summary>
+    /// <param name="context"></param>
     public RentController(ApplicationContext context)
     {
         _context = context;

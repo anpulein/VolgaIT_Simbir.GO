@@ -36,7 +36,7 @@ public class AdminAccountController : ControllerBase
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     [HttpGet("{start}/{count}")]
-    public IEnumerable<Models.AccountInfo> GetAccounts(int start, int count)
+    public ActionResult<IEnumerable<AccountInfo>> GetAccounts(int start, int count)
     {
         if (start < 0 || count <= 0)
         {
@@ -44,11 +44,11 @@ public class AdminAccountController : ControllerBase
         }
 
         if (start > _context.Accounts.Count()) throw new ArgumentOutOfRangeException("Incorrect start parameter");
-        
-        return _context.Accounts
+
+        return Ok(_context.Accounts
             .Skip(start)
             .Take(count)
-            .ToList();
+            .ToList());
     }
     
     /// <summary>
@@ -62,13 +62,13 @@ public class AdminAccountController : ControllerBase
         var account = _context.Accounts.FirstOrDefault(f => f.Id == id);
         if (account is null) return Unauthorized("User does not exist");
         
-        return new AdminAccountModel
+        return Ok(new AdminAccountModel
         {
             Username = account.Username,
             Password = account.Password,
             IsAdmin = account.IsAdmin,
             Balance = account.Balance
-        };
+        });
     }
     
     /// <summary>
@@ -96,14 +96,14 @@ public class AdminAccountController : ControllerBase
 
         _context.Accounts.Add(account);
         _context.SaveChanges();
-        
-        return new AdminAccountModel
+
+        return Ok(new AdminAccountModel
         {
             Username = account.Username,
             Password = account.Password,
             IsAdmin = account.IsAdmin,
             Balance = account.Balance
-        };
+        });
     }
 
     /// <summary>
@@ -127,14 +127,14 @@ public class AdminAccountController : ControllerBase
         account.Balance = request.Balance;
 
         _context.SaveChanges();
-        
-        return new AdminAccountModel
+
+        return Ok(new AdminAccountModel
         {
             Username = account.Username,
             Password = account.Password,
             IsAdmin = account.IsAdmin,
             Balance = account.Balance
-        };
+        });
     }
 
     /// <summary>

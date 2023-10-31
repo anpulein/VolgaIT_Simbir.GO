@@ -32,7 +32,7 @@ public class AdminTransportController : ControllerBase
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     [HttpGet("{start}/{count}/{type}")]
-    public IEnumerable<TransportInfo> GetTransports(int start, int count, TransportType type)
+    public ActionResult<IEnumerable<TransportInfo>> GetTransports(int start, int count, TransportType type)
     {
         if (start < 0 || count <= 0)
         {
@@ -42,11 +42,11 @@ public class AdminTransportController : ControllerBase
         if (start > _context.Transports.Count()) 
             throw new ArgumentOutOfRangeException("Incorrect start parameter");
 
-        return _context.Transports
+        return Ok(_context.Transports
             .Skip(start)
             .Take(count)
             .Where(w => w.TransportType == type)
-            .ToList();
+            .ToList());
     }
 
     /// <summary>

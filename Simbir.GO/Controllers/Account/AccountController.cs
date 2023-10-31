@@ -19,7 +19,7 @@ public class AccountController : ControllerBase
     private readonly ILogger<Models.AccountInfo> _logger;
 
     /// <summary>
-    /// Account Controller
+    /// Account controller
     /// </summary>
     /// <param name="tokenService"></param>
     /// <param name="bCryptNet"></param>
@@ -114,7 +114,7 @@ public class AccountController : ControllerBase
         _context.Accounts.Add(account);
         _context.SaveChanges();
 
-        return (new AccountModel
+        return Ok(new AccountModel
         {
             Username = account.Username,
             Password = account.Password
@@ -162,7 +162,7 @@ public class AccountController : ControllerBase
         
         _context.SaveChanges();
 
-        return (new AccountModel
+        return Ok(new AccountModel
         {
             Username = account.Username,
             Password = account.Password
