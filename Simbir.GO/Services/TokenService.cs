@@ -13,9 +13,9 @@ public class TokenService : ITokenService
         _configuration = configuration;
     }
 
-    public string CreateToken(Account account)
+    public string CreateToken(AccountInfo accountInfo)
     {
-        var token = account
+        var token = accountInfo
             .CreateClaims()
             .CreateJwtToken(_configuration);
         var tokenHandler = new JwtSecurityTokenHandler();

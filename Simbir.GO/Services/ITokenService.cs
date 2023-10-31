@@ -7,7 +7,7 @@ public interface ITokenService
     /// <summary>
     /// Create token
     /// </summary>
-    /// <param name="account"></param>
+    /// <param name="accountInfo"></param>
     /// <returns></returns>
-    string CreateToken(Account account);
+    string CreateToken(AccountInfo accountInfo);
 }

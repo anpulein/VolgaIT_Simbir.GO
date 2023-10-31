@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Simbir.GO.Models;
 
-public class Account
+public class AccountInfo
 {
     /// <summary>
     /// User Id

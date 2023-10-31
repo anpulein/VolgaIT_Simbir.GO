@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Simbir.GO.Models;
+using Simbir.GO.Models.Rent;
 using Simbir.GO.Models.Transport;
 
 namespace Simbir.GO.Data;
@@ -14,8 +15,8 @@ public sealed class ApplicationContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Account>().HasData(
-            new Account
+        modelBuilder.Entity<AccountInfo>().HasData(
+            new AccountInfo
             {
                 Id = 1,
                 Username = "admin", 
@@ -28,10 +29,14 @@ public sealed class ApplicationContext : DbContext
     /// <summary>
     /// Account model
     /// </summary>
-    public DbSet<Account> Accounts { get; set; } = null!;
+    public DbSet<AccountInfo> Accounts { get; set; } = null!;
     /// <summary>
-    /// TransportInfo model
+    /// Transport model
     /// </summary>
     public DbSet<TransportInfo> Transports { get; set; } = null!;
-    
+    /// <summary>
+    /// Rent model
+    /// </summary>
+    public DbSet<Rental> Rents { get; set; } = null!;
+
 }

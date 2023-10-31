@@ -13,7 +13,7 @@ public class AdminAccountController : ControllerBase
 {
     private readonly IBCryptNet _bCryptNet;
     private readonly ApplicationContext _context;
-    private readonly ILogger<Models.Account> _logger;
+    private readonly ILogger<Models.AccountInfo> _logger;
     
     /// <summary>
     /// AdminAccount controller
@@ -21,7 +21,7 @@ public class AdminAccountController : ControllerBase
     /// <param name="bCryptNet"></param>
     /// <param name="context"></param>
     /// <param name="logger"></param>
-    public AdminAccountController(IBCryptNet bCryptNet, ApplicationContext context, ILogger<Models.Account> logger)
+    public AdminAccountController(IBCryptNet bCryptNet, ApplicationContext context, ILogger<Models.AccountInfo> logger)
     {
         _bCryptNet = bCryptNet;
         _context = context;
@@ -36,7 +36,7 @@ public class AdminAccountController : ControllerBase
     /// <returns></returns>
     /// <exception cref="ArgumentOutOfRangeException"></exception>
     [HttpGet("{start}/{count}")]
-    public IEnumerable<Models.Account> GetAccounts(int start, int count)
+    public IEnumerable<Models.AccountInfo> GetAccounts(int start, int count)
     {
         if (start < 0 || count <= 0)
         {
@@ -86,7 +86,7 @@ public class AdminAccountController : ControllerBase
 
         string passwordHash = _bCryptNet.GetPasswordHash(request.Password);
 
-        var account = new Models.Account
+        var account = new Models.AccountInfo
         {
             Username = request.Username,
             Password = passwordHash,

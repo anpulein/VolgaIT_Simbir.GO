@@ -16,7 +16,7 @@ public class AccountController : ControllerBase
     private readonly IBCryptNet _bCryptNet;
     private readonly ApplicationContext _context;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<Models.Account> _logger;
+    private readonly ILogger<Models.AccountInfo> _logger;
 
     /// <summary>
     /// Account Controller
@@ -26,7 +26,7 @@ public class AccountController : ControllerBase
     /// <param name="context"></param>
     /// <param name="configuration"></param>
     /// <param name="logger"></param>
-    public AccountController(ITokenService tokenService, IBCryptNet bCryptNet, ApplicationContext context, IConfiguration configuration, ILogger<Models.Account> logger)
+    public AccountController(ITokenService tokenService, IBCryptNet bCryptNet, ApplicationContext context, IConfiguration configuration, ILogger<Models.AccountInfo> logger)
     {
         _tokenService = tokenService;
         _bCryptNet = bCryptNet;
@@ -40,7 +40,7 @@ public class AccountController : ControllerBase
     /// </summary>
     /// <returns></returns>
     [Authorize, HttpGet]
-    public ActionResult<Models.Account> Me()
+    public ActionResult<AccountInfo> Me()
     {
         var username = User.Identity?.Name; 
         
@@ -105,7 +105,7 @@ public class AccountController : ControllerBase
         
         string passwordHash = _bCryptNet.GetPasswordHash(model.Password);
 
-        var account = new Models.Account
+        var account = new Models.AccountInfo
         {
             Username = model.Username,
             Password = passwordHash

@@ -6,7 +6,7 @@ namespace Simbir.GO.Models.Transport;
 public class TransportInfo
 {
     /// <summary>
-    /// TransportInfo Id
+    /// Transporе Id
     /// </summary>
     [Key]
     public long Id { get; set; }
@@ -21,7 +21,7 @@ public class TransportInfo
     /// Account 
     /// </summary>
     [ForeignKey("OwnerId")]
-    public Account Owner { get; set; } 
+    public AccountInfo Owner { get; set; } 
 
     /// <summary>
     /// Is rented?

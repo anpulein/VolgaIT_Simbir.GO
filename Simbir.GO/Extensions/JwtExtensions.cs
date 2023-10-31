@@ -14,15 +14,15 @@ public static class JwtExtensions
     /// <summary>
     /// Save info account in token
     /// </summary>
-    /// <param name="account"></param>
+    /// <param name="accountInfo"></param>
     /// <returns></returns>
-    public static List<Claim> CreateClaims(this Account account)
+    public static List<Claim> CreateClaims(this AccountInfo accountInfo)
     {
         var clims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, account.Id.ToString()),
-            new(ClaimTypes.Name, account.Username),
-            new(ClaimTypes.Role, account.IsAdmin.ToString())
+            new(ClaimTypes.NameIdentifier, accountInfo.Id.ToString()),
+            new(ClaimTypes.Name, accountInfo.Username),
+            new(ClaimTypes.Role, accountInfo.IsAdmin.ToString())
         };
         return clims;
     }
