@@ -9,6 +9,7 @@ namespace Simbir.GO.Controllers.Rent;
 
 [ApiController]
 [Route("api/[controller]/[action]")]
+[Authorize]
 public class RentController : ControllerBase
 {
     private readonly ApplicationContext _context;
@@ -22,6 +23,11 @@ public class RentController : ControllerBase
         _context = context;
     }
 
+    /// <summary>
+    /// Получение транспорта доступного для аренды по параметрам
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
     [HttpGet]
     public ActionResult<IEnumerable<TransportModel>> Transport([FromQuery] RentRequest request)
     {
@@ -40,6 +46,11 @@ public class RentController : ControllerBase
         return Ok(transports);
     }
 
+    /// <summary>
+    /// Получение информации об аренде по id
+    /// </summary>
+    /// <param name="rentId"></param>
+    /// <returns></returns>
     [Route("api/Rent")]
     [HttpGet("{rentId}")]
     public ActionResult<Rental> Get(int rentId)
@@ -63,7 +74,11 @@ public class RentController : ControllerBase
         return Ok(rent);
     }
     
-    [Authorize, HttpGet]
+    /// <summary>
+    ///  Получение истории аренд текущего аккаунта
+    /// </summary>
+    /// <returns></returns>
+    [HttpGet]
     public ActionResult<IEnumerable<Rental>> MyHistory()
     {
         var username = User.Identity?.Name;
@@ -84,7 +99,12 @@ public class RentController : ControllerBase
         return Ok(rents);
     }
 
-    [Authorize, HttpGet("{transportId}")]
+    /// <summary>
+    /// Получение истории аренд транспорта
+    /// </summary>
+    /// <param name="transportId"></param>
+    /// <returns></returns>
+    [HttpGet("{transportId}")]
     public ActionResult<IEnumerable<Rental>> TransportHistory(int transportId)
     {
         var username = User.Identity?.Name;
@@ -105,7 +125,13 @@ public class RentController : ControllerBase
         return Ok(rents);
     }
 
-    [Authorize, HttpGet("{transportId}")]
+    /// <summary>
+    /// Аренда транспорта в личное пользование
+    /// </summary>
+    /// <param name="transportId"></param>
+    /// <param name="priceType"></param>
+    /// <returns></returns>
+    [HttpGet("{transportId}")]
     public ActionResult<IEnumerable<Rental>> New(int transportId, [FromQuery] PriceType priceType)
     {
         var username = User.Identity?.Name;
@@ -142,7 +168,14 @@ public class RentController : ControllerBase
         return Ok(rent);
     }
         
-    [Authorize, HttpGet("{rentId}/{lat}/{lon}")]
+    /// <summary>
+    /// Завершение аренды транспорта по id аренды
+    /// </summary>
+    /// <param name="rentId"></param>
+    /// <param name="lat"></param>
+    /// <param name="lon"></param>
+    /// <returns></returns>
+    [HttpGet("{rentId}/{lat}/{lon}")]
     public ActionResult<IEnumerable<Rental>> End(int rentId, double lat, double lon)
     {
         var username = User.Identity?.Name;

@@ -8,6 +8,7 @@ namespace Simbir.GO.Controllers.Transport;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class TransportController : ControllerBase
 {
     private ApplicationContext _context;
@@ -42,7 +43,7 @@ public class TransportController : ControllerBase
     /// </summary>
     /// <param name="request"></param>
     /// <returns></returns>
-    [Authorize, HttpPost]
+    [HttpPost]
     public ActionResult<TransportInfo> Add([FromQuery] TransportModel request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -80,7 +81,7 @@ public class TransportController : ControllerBase
     /// <param name="id"></param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [Authorize, HttpPut("{id}")]
+    [HttpPut("{id}")]
     public ActionResult Update(long id, [FromQuery] TransportModel request)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -117,7 +118,7 @@ public class TransportController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    [Authorize, HttpDelete("{id}")]
+    [HttpDelete("{id}")]
     public ActionResult Delete(long id)
     {
         var username = User.Identity?.Name;
